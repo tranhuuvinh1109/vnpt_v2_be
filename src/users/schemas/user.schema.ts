@@ -5,14 +5,14 @@ export type UserDocument = User & Document;
 
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } })
 export class User {
-  @Prop({ type: Number, required: true, unique: true })
-  id: number; // pk
-
   @Prop({ type: Types.ObjectId, ref: 'UserType' })
   user_type_id: Types.ObjectId; // > user_types.id
 
   @Prop()
   parse_id: string;
+
+  @Prop()
+  name: string;
 
   @Prop({ unique: true })
   email: string;
