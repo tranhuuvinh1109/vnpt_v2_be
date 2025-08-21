@@ -7,6 +7,10 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
+import { ShiftModule } from './shift/shift.module';
+import { InforDetailModule } from './infor_detail/infor_detail.module';
+import { InforTypeModule } from './infor_type/infor_type.module';
+import { StationModule } from './station/station.module';
 
 @Module({
   imports: [
@@ -22,14 +26,18 @@ import { AuthGuard } from './auth/auth.guard';
     }),
     UsersModule,
     AuthModule,
+    ShiftModule,
+    InforDetailModule,
+    InforTypeModule,
+    StationModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AuthGuard,
+    // },
   ],
 })
 export class AppModule {}

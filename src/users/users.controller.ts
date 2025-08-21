@@ -6,6 +6,8 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('users')
+@ApiBearerAuth('access-token')
+@UseGuards(AuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -14,7 +16,6 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @ApiBearerAuth('access-token')
   @Get()
   findAll() {
     return this.usersService.findAll();
