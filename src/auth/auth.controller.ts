@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';
+import { SigninDto } from './dto/signin.dto';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -33,5 +34,24 @@ export class AuthController {
   })
   async signup(@Body() dto: SignupDto) {
     return this.authService.signup(dto);
+  }
+
+  @Public()
+  @Post('signin')
+  @ApiOperation({ summary: 'Sign in an existing user' })
+  @ApiBody({
+    schema: {
+      example: {
+        email: 'test@example.com',
+        password: '123456',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User successfully signed in, returns access and refresh tokens',
+  })
+  async signin(@Body() dto: SigninDto) {
+    return this.authService.signin(dto);
   }
 }

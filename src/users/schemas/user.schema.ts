@@ -34,6 +34,12 @@ export class User {
 
   @Prop({ type: Types.ObjectId, ref: 'Station' })
   station: Types.ObjectId; // > station.id
+
+  @Prop()
+  access_token: string;
+
+  @Prop()
+  refresh_token: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
