@@ -6,7 +6,7 @@ export type UserDocument = User & Document;
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } })
 export class User {
   @Prop({ type: Types.ObjectId, ref: 'UserType' })
-  user_type_id: Types.ObjectId; // > user_types.id
+  user_type_id: Types.ObjectId;
 
   @Prop()
   parse_id: string;
@@ -16,9 +16,6 @@ export class User {
 
   @Prop({ unique: true })
   email: string;
-
-  @Prop()
-  password: string;
 
   @Prop()
   phone_number: string;
@@ -33,12 +30,15 @@ export class User {
   user_address: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Station' })
-  station: Types.ObjectId; // > station.id
+  station: Types.ObjectId;
 
-  @Prop()
+  @Prop({ required: true, select: false })
+  password: string;
+
+  @Prop({ select: false })
   access_token: string;
 
-  @Prop()
+  @Prop({ select: false })
   refresh_token: string;
 }
 

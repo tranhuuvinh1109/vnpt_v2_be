@@ -1,7 +1,10 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsEnum } from 'class-validator';
+import { InforTypeEnum } from 'src/enum/common';
 
 export class CreateInforTypeDto {
-  @IsString()
   @IsNotEmpty()
-  type_name: string;
+  @IsEnum(InforTypeEnum, {
+    message: 'type_name must be one of: previous, current, next',
+  })
+  type_name: InforTypeEnum;
 }

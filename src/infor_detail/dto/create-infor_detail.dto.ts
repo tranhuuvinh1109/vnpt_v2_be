@@ -1,14 +1,17 @@
-import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsIn } from 'class-validator';
+import { InforTypeEnum } from 'src/enum/common';
 
 export class CreateInforDetailDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   note: string;
 
   @IsOptional()
   @IsString()
-  image?: string;
+  image: string;
 
   @IsNotEmpty()
-  type: string; // ObjectId của infor_type
+  @IsString()
+  @IsIn(Object.values(InforTypeEnum))
+  type: InforTypeEnum;
 }

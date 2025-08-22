@@ -8,5 +8,6 @@ import { InforType, InforTypeSchema } from './schemas/infor_type.schema';
   imports: [MongooseModule.forFeature([{ name: InforType.name, schema: InforTypeSchema }])],
   controllers: [InforTypeController],
   providers: [InforTypeService],
+  exports: [InforTypeService],
 })
 export class InforTypeModule {}
