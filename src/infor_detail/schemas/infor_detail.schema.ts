@@ -6,10 +6,10 @@ export type InforDetailDocument = InforDetail & Document;
 
 @Schema({ timestamps: true })
 export class InforDetail {
-  @Prop({ required: true })
+  @Prop({ type: String, default: '' })
   note: string;
 
-  @Prop()
+  @Prop({ type: String, default: '' })
   image: string;
 
   @Prop({ type: Types.ObjectId, ref: 'InforType', required: true })

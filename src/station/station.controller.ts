@@ -14,10 +14,9 @@ export class StationController {
   @UseGuards(AuthGuard)
   @ApiBody({
     schema: {
-      type: 'object',
-      properties: {
-        name: { type: 'string', example: 'Station A' },
-        address: { type: 'string', example: '123 Nguyễn Văn Linh, Đà Nẵng' },
+      example: {
+        station_name: 'Da Nang',
+        address: 'Da Nang',
       },
     },
   })

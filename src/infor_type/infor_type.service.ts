@@ -18,9 +18,10 @@ export class InforTypeService {
     return this.inforTypeModel.find().exec();
   }
 
-  async findOne(id: string): Promise<InforType> {
-    const found = await this.inforTypeModel.findById(id).exec();
-    if (!found) throw new NotFoundException(`InforType with ID ${id} not found`);
+  async findOneByTypeName(type_name: string) {
+    const found = await this.inforTypeModel.findOne({ type_name }).exec();
+
+    if (!found) throw new NotFoundException(`InforType with type_name "${type_name}" not found`);
     return found;
   }
 
