@@ -25,7 +25,13 @@ async function bootstrap() {
   };
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document, swOptions);
-
+  // Allow all CORS
+  app.enableCors({
+    origin: '*', // Cho phép tất cả domain
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+  });
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
