@@ -2,8 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { StationService } from './station.service';
 import { CreateStationDto } from './dto/create-station.dto';
 import { UpdateStationDto } from './dto/update-station.dto';
-import { Public } from 'src/common/decorators/public.decorator';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { Public } from '../common/decorators/public.decorator';
+import { AuthGuard } from '../auth/auth.guard';
 import { ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('station')

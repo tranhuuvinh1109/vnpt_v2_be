@@ -23,8 +23,8 @@ async function bootstrap() {
       // defaultModelsExpandDepth: -1,
     },
   };
-  // const document = SwaggerModule.createDocument(app, config);
-  // SwaggerModule.setup('api/docs', app, document, swOptions);
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document, swOptions);
   // Allow all CORS
   app.enableCors({
     origin: '*', // Cho phép tất cả domain

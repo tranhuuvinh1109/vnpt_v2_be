@@ -5,7 +5,7 @@ import { Shift, ShiftDocument } from './schemas/shift.schema';
 import { CreateShiftDto } from './dto/create-shift.dto';
 import { UpdateShiftDto } from './dto/update-shift.dto';
 import { InforDetailService } from 'src/infor_detail/infor_detail.service';
-import { InforTypeEnum, ShiftStatusEnum } from 'src/enum/common';
+import { InforTypeEnum, ShiftStatusEnum } from '../enum/common';
 import { CreateFollowDayDto } from './dto/create-shift-day-dto';
 
 @Injectable()

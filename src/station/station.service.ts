@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { Station, StationDocument } from './schemas/station.schema';
 import { CreateStationDto } from './dto/create-station.dto';
 import { UpdateStationDto } from './dto/update-station.dto';
-import { Public } from 'src/common/decorators/public.decorator';
+import { Public } from '../common/decorators/public.decorator';
 
 @Injectable()
 export class StationService {

@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, IsOptional, IsIn } from 'class-validator';
-import { InforTypeEnum } from 'src/enum/common';
+import { InforTypeEnum } from '../../enum/common';
 
 export class CreateInforDetailDto {
   @IsOptional()
