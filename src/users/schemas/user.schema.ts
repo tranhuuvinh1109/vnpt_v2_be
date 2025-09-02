@@ -5,6 +5,8 @@ export type UserDocument = User & Document;
 
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } })
 export class User {
+  _id: Types.ObjectId;
+
   @Prop({ type: Types.ObjectId, ref: 'UserType' })
   user_type_id: Types.ObjectId;
 

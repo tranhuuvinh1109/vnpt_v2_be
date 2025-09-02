@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { Public } from '../common/decorators/public.decorator';
 
@@ -43,16 +43,17 @@ export class AuthService {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const payload = { email };
-    const tokens = this.generateTokens(payload);
-
     const newUser = await this.userModel.create({
       email,
       password: hashedPassword,
       name,
-      access_token: tokens.accessToken,
-      refresh_token: tokens.refreshToken,
     });
+
+    const payload = { sub: newUser._id.toString(), email };
+    const tokens = this.generateTokens(payload);
+
+    newUser.refresh_token = tokens.refreshToken;
+    await newUser.save();
 
     return {
       user: {
@@ -65,18 +66,25 @@ export class AuthService {
     };
   }
 
-  /** Đăng nhập */
   @Public()
   async signin(dto: SigninDto) {
     const { email, password } = dto;
 
-    const user = await this.userModel.findOne({ email });
-    if (!user) throw new UnauthorizedException('Invalid email or password');
+    const user = await this.userModel.findOne({ email }).select('+password').populate('station');
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) throw new UnauthorizedException('Invalid email or password');
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
 
-    const payload = { sub: user._id, email: user.email };
+    if (!password || !user.password) {
+      throw new BadRequestException('Password is missing');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    const payload = { sub: user._id.toString(), email };
     const tokens = this.generateTokens(payload);
 
     user.access_token = tokens.accessToken;
@@ -85,11 +93,16 @@ export class AuthService {
 
     return {
       user: {
-        id: user._id,
+        id: user._id.toString(),
         email: user.email,
         name: user.name,
+        phone_number: user.phone_number,
+        role: user.role,
+        user_address: user.user_address,
+        date_of_birth: user.date_of_birth,
         access_token: tokens.accessToken,
         refresh_token: tokens.refreshToken,
+        station: user.station,
       },
     };
   }
