@@ -10,7 +10,7 @@ export class CreateInforDetailDto {
   @IsString()
   image: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @IsIn(Object.values(InforTypeEnum))
   type: InforTypeEnum;

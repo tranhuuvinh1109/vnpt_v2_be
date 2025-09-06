@@ -1,12 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Shift, ShiftDocument } from './schemas/shift.schema';
 import { CreateShiftDto } from './dto/create-shift.dto';
-import { UpdateShiftDto } from './dto/update-shift.dto';
+import { UpdateInfoDto, UpdateShiftDto, UpdateShiftFollowDayDto } from './dto/update-shift.dto';
 import { InforDetailService } from 'src/infor_detail/infor_detail.service';
 import { InforTypeEnum, ShiftStatusEnum } from '../enum/common';
 import { CreateFollowDayDto } from './dto/create-shift-day-dto';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class ShiftService {
@@ -20,7 +21,7 @@ export class ShiftService {
     return shift.save();
   }
 
-  async createFollowDay({ start_time, create_user, end_time, date }: CreateFollowDayDto) {
+  async createFollowDay({ start_time, create_user, end_time, date, station }: CreateFollowDayDto) {
     if (!start_time || !end_time) {
       throw new BadRequestException('Date is required');
     }
@@ -59,7 +60,7 @@ export class ShiftService {
         approved: false,
         note: '',
         create_user: create_user,
-        station: '68a881eeaa9ddb69afa27cea', // default station
+        station: station ?? '68a881eeaa9ddb69afa27cea', // default station
       });
 
       createdShifts.push(shift);
@@ -69,6 +70,54 @@ export class ShiftService {
       message: 'Shifts for the day created successfully',
       data: createdShifts,
     };
+  }
+
+  async updateShiftFollowDay(shiftId: string, dto: UpdateShiftFollowDayDto) {
+    const {
+      _id,
+      station,
+      assign,
+      infor_pre,
+      infor_during,
+      infor_exist,
+      status,
+      approved,
+      start_time,
+      end_time,
+    } = dto;
+
+    const shift = await this.shiftModel.findById(shiftId);
+    if (!shift) {
+      throw new NotFoundException(`Shift with id ${_id} not found`);
+    }
+
+    shift.assign_user = assign.map((id) => new Types.ObjectId(id));
+    shift.approved = approved ?? shift.approved;
+    shift.status = status ?? shift.status;
+    shift.start_time = start_time;
+    shift.end_time = end_time;
+    shift.station = new Types.ObjectId(station);
+
+    type InforFields = 'infor_pre' | 'infor_during' | 'infor_exist';
+
+    const updateInfor = async (inforDto: UpdateInfoDto, field: InforFields) => {
+      if (inforDto && inforDto._id) {
+        await this.infoDetailService.update(inforDto._id, {
+          note: inforDto.note,
+          image: inforDto.image,
+        });
+
+        shift[field] = new Types.ObjectId(inforDto._id) as any;
+      }
+    };
+
+    await updateInfor(infor_pre, 'infor_pre');
+    await updateInfor(infor_during, 'infor_during');
+    await updateInfor(infor_exist, 'infor_exist');
+
+    await shift.save();
+
+    return shift;
   }
 
   async findAll() {
@@ -83,9 +132,22 @@ export class ShiftService {
       .exec();
   }
 
-  async findAllOrder() {
+  async findAllOrder(query: { from?: string; to?: string }) {
+    const { from, to } = query;
+
+    const filter: any = {};
+    if (from || to) {
+      filter.date = {};
+      if (from) {
+        filter.date.$gte = dayjs(from, 'YYYY-MM-DD').startOf('day').toDate();
+      }
+      if (to) {
+        filter.date.$lte = dayjs(to, 'YYYY-MM-DD').endOf('day').toDate();
+      }
+    }
+
     const shifts = await this.shiftModel
-      .find()
+      .find(filter)
       .select('-__v -createdAt -updatedAt')
       .populate('infor_exist', '-__v -createdAt -updatedAt')
       .populate('infor_during', '-__v -createdAt -updatedAt')
@@ -96,23 +158,25 @@ export class ShiftService {
       .sort({ date: 1 })
       .exec();
 
-    const grouped = shifts.reduce((acc, shift) => {
-      const dateKey = new Date(shift.date).toISOString().split('T')[0];
+    const grouped = shifts.reduce(
+      (acc, shift) => {
+        const dateKey = new Date(shift.date).toISOString().split('T')[0];
 
-      if (!acc[dateKey]) {
-        acc[dateKey] = {
-          date: dateKey,
-          shifts: [],
-        };
-      }
+        if (!acc[dateKey]) {
+          acc[dateKey] = {
+            date: dateKey,
+            shifts: [],
+          };
+        }
 
-      acc[dateKey].shifts.push(shift);
-      return acc;
-    }, {});
+        acc[dateKey].shifts.push(shift);
+        return acc;
+      },
+      {} as Record<string, { date: string; shifts: any[] }>,
+    );
 
     return Object.values(grouped);
   }
-
   async findOne(id: string): Promise<Shift> {
     const shift = await this.shiftModel.findById(id).exec();
     if (!shift) throw new NotFoundException(`Shift with ID ${id} not found`);

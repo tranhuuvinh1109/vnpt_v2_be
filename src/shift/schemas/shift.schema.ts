@@ -5,8 +5,8 @@ export type ShiftDocument = Shift & Document;
 
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } })
 export class Shift {
-  @Prop({ type: Types.ObjectId, ref: 'User', default: null })
-  assign_user: Types.ObjectId; // > users.id
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
+  assign_user: Types.ObjectId[];
 
   @Prop({ type: Types.ObjectId, ref: 'Shift', default: null })
   pre_shift: Types.ObjectId; // > shift.id
@@ -17,11 +17,11 @@ export class Shift {
   @Prop({ type: Date })
   date: Date;
 
-  @Prop({ type: Date })
-  start_time: Date;
+  @Prop({ type: String })
+  start_time: string;
 
-  @Prop({ type: Date })
-  end_time: Date;
+  @Prop({ type: String })
+  end_time: string;
 
   @Prop({ type: Number })
   shift_number: number;

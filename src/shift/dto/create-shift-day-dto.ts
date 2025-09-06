@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsDateString } from 'class-validator';
+import { IsNotEmpty, IsString, IsDateString, IsOptional } from 'class-validator';
 
 export class CreateFollowDayDto {
   @IsNotEmpty({ message: 'Start time is required' })
@@ -16,4 +16,8 @@ export class CreateFollowDayDto {
   @IsNotEmpty({ message: 'Date is required' })
   @IsString({ message: 'Date must be a string' })
   date: string;
+
+  @IsOptional()
+  @IsString()
+  station?: string;
 }
