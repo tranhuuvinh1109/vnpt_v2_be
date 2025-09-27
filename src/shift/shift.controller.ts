@@ -1,9 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseInterceptors,
+  UploadedFiles,
+} from '@nestjs/common';
 import { ShiftService } from './shift.service';
 import { CreateShiftDto } from './dto/create-shift.dto';
-import { UpdateShiftDto, UpdateShiftFollowDayDto } from './dto/update-shift.dto';
+import { UpdateShiftDto } from './dto/update-shift.dto';
 import { ApiBody, ApiQuery } from '@nestjs/swagger';
 import { CreateFollowDayDto } from './dto/create-shift-day-dto';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @Controller('shift')
 export class ShiftController {
@@ -56,11 +68,47 @@ export class ShiftController {
     },
   })
   @Patch('update-follow-day/:id')
-  updateFollowDay(
-    @Param('id') id: string,
-    @Body() updateShiftFollowDayDto: UpdateShiftFollowDayDto,
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'infor_pre_image', maxCount: 1 },
+      { name: 'infor_during_image', maxCount: 1 },
+      { name: 'infor_exist_image', maxCount: 1 },
+    ]),
+  )
+  async updateShiftFollowDay(
+    @Param('id') shiftId: string,
+    @UploadedFiles()
+    files: {
+      infor_pre_image?: Express.Multer.File[];
+      infor_during_image?: Express.Multer.File[];
+      infor_exist_image?: Express.Multer.File[];
+    },
+    @Body() body: any,
   ) {
-    return this.shiftService.updateShiftFollowDay(id, updateShiftFollowDayDto);
+    const toBase64 = (file?: Express.Multer.File) => {
+      if (!file) return undefined;
+      const base64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      return base64;
+    };
+
+    return this.shiftService.updateShiftFollowDay(shiftId, {
+      ...body,
+      infor_pre: {
+        _id: body.infor_pre_id,
+        note: body.infor_pre_note,
+        image: files.infor_pre_image ? toBase64(files.infor_pre_image[0]) : undefined,
+      },
+      infor_during: {
+        _id: body.infor_during_id,
+        note: body.infor_during_note,
+        image: files.infor_during_image ? toBase64(files.infor_during_image[0]) : undefined,
+      },
+      infor_exist: {
+        _id: body.infor_exist_id,
+        note: body.infor_exist_note,
+        image: files.infor_exist_image ? toBase64(files.infor_exist_image[0]) : undefined,
+      },
+    });
   }
 
   @Get('order')

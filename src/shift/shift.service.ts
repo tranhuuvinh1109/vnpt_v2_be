@@ -91,7 +91,17 @@ export class ShiftService {
       throw new NotFoundException(`Shift with id ${_id} not found`);
     }
 
-    shift.assign_user = assign.map((id) => new Types.ObjectId(id));
+    let assignArr: string[] = [];
+    if (typeof assign === 'string') {
+      try {
+        assignArr = JSON.parse(assign);
+      } catch {
+        assignArr = [];
+      }
+    } else if (Array.isArray(assign)) {
+      assignArr = assign;
+    }
+    shift.assign_user = assignArr.map((id) => new Types.ObjectId(id));
     shift.approved = approved ?? shift.approved;
     shift.status = status ?? shift.status;
     shift.start_time = start_time;
